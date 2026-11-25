@@ -422,10 +422,6 @@ retry:
 	__spin_unlock (&_hurd_ports[i].lock);
       ports_locked = 0;
 
-      /* All state has now been copied from the parent.  It is safe to
-	 resume other parent threads.  */
-      resume_threads ();
-
       /* Create the child main user thread and signal thread.  */
       if ((err = __thread_create (newtask, &thread))
 	  || (err = __thread_create (newtask, &sigthread)))
@@ -510,6 +506,14 @@ retry:
 	LOSE;
       /* We do not thread_resume SIGTHREAD here because the child
 	 fork needs to do more setup before it can take signals.  */
+
+      /* All state has now been copied from the parent.  It is safe to
+	 resume other parent threads.  We only do so now because we have
+	 just fetched the state of our signal thread: had it been running,
+	 it could have been suspending this very thread to deliver a
+	 signal while thread_get_state waits for it to stop, and both
+	 threads would wait for each other forever.  */
+      resume_threads ();
 
       /* Set the child user thread up to return 1 from the setjmp above.  */
       _hurd_longjmp_thread_state (&state, env, 1);
