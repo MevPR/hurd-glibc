@@ -295,6 +295,9 @@ _hurd_tls_new (thread_t child, tcbhead_t *tcb)
   HURD_TLS_DESC_DECL (desc, tcb);
 
   tcb->tcb = tcb;
+  /* The catomic_* operations only use a lock prefix when this is set,
+     and they run in this new thread while others run too.  */
+  tcb->multiple_threads = 1;
 
   if (HURD_SEL_LDT (sel))
     err = __i386_set_ldt (child, sel, &desc, 1);
