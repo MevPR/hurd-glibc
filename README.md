@@ -1,4 +1,4 @@
-# glibc-SMP
+# hurd-glibc
 
 ## Purpose
 
