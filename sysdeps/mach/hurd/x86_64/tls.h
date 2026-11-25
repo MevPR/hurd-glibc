@@ -168,6 +168,9 @@ _hurd_tls_new (thread_t child, tcbhead_t *tcb)
   struct i386_fsgs_base_state state;
 
   tcb->tcb = tcb;
+  /* The catomic_* operations only use a lock prefix when this is set,
+     and they run in this new thread while others run too.  */
+  tcb->multiple_threads = 1;
 
   /* Install the TCB address into FS base.  */
   state.fs_base = (uintptr_t) tcb;
