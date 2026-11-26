@@ -18,13 +18,16 @@ original glibc README is unchanged in [`README`](README).
 
 | | |
 |---|---|
-| **Fixes** | 2 patches on current upstream master (branch `main` = `hurd-smp`) |
+| **Fixes** | 2 patches on current upstream master (branch `main` = `hurd-smp`); the `multiple_threads` one only matters for glibc ≤ 2.42 |
 | **Tested** | on Debian GNU/Hurd amd64 (glibc 2.41, snapshot 20250807) through equivalent binary patches of `libpthread.so.0.3` and `libc.so.0.3`, with static servers relinked with the same change: a multithreaded malloc test that failed every run on 2 CPUs passes every run, and the full Hurd stress test passes 6 times out of 6.  Not yet tested as a glibc rebuild from these sources. |
 | **Upstream** | prepared for libc-alpha@sourceware.org (Cc bug-hurd@gnu.org), **not yet sent** |
 
 ## What was fixed
 
-- **Heap corruption in every multithreaded program on SMP.**  On x86,
+- **Heap corruption in every multithreaded program on SMP (glibc ≤ 2.42).**
+  Since 4eef002328 ("x86: Remove catomic_* locking primitives", September
+  2025, in 2.43) nothing reads `multiple_threads` any more and the
+  corruption is gone; this patch is kept for older branches only.  On x86,
   glibc's `catomic_*` operations, used by malloc for its fastbins, only
   take the `lock` prefix when `tcbhead_t.multiple_threads` is set in the
   current thread's control block.  On the Hurd only `_hurd_tls_init` set
