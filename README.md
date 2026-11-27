@@ -14,12 +14,24 @@ program.
 Base: glibc from sourceware.org/git/glibc.git (branch `upstream`).  The
 original glibc README is unchanged in [`README`](README).
 
+## Related repositories
+
+The project is split in three repositories that belong together; a fix is only complete with all of them installed.
+
+| Repository | Component |
+|---|---|
+| [mach-SMP](https://github.com/MevPR/mach-SMP) | GNU Mach kernel (SMP fixes, `smp_pset=default`, tests); investigation notes, tools and test scripts for the whole project; the netdde and rumpkernel patches |
+| [hurd-SMP](https://github.com/MevPR/hurd-SMP) | Hurd libraries and servers (libports, libfshelp, libpager, pflocal, console-client) |
+| **hurd-glibc** (this one) | glibc's Hurd port (fork deadlock; `multiple_threads` for glibc ≤ 2.42) |
+| [chromium-hurd](https://github.com/MevPR/chromium-hurd) | Chromium for the Hurd, used as the acceptance test: it opens and renders https://www.duckduckgo.com on 2 CPUs |
+
 ## Status
 
 | | |
 |---|---|
 | **Fixes** | 2 patches on current upstream master (branch `main` = `hurd-smp`); the `multiple_threads` one only matters for glibc ≤ 2.42 |
 | **Tested** | on Debian GNU/Hurd amd64 (glibc 2.41, snapshot 20250807) through equivalent binary patches of `libpthread.so.0.3` and `libc.so.0.3`, with static servers relinked with the same change: a multithreaded malloc test that failed every run on 2 CPUs passes every run, and the full Hurd stress test passes 6 times out of 6.  Not yet tested as a glibc rebuild from these sources. |
+| **Tested on glibc 2.43** | the fork fix, as a binary patch of `libc.so.0.3` of Debian's glibc 2.43-7 (`binpatch.py libc243-fork` in mach-SMP): the first 4 GB boot on 2 CPUs hung in runlevel S without it; with it, about 15 boots on 2 CPUs had no fork hang, and Chromium opens and renders https://www.duckduckgo.com |
 | **Upstream** | prepared for libc-alpha@sourceware.org (Cc bug-hurd@gnu.org), **not yet sent** |
 
 ## What was fixed
